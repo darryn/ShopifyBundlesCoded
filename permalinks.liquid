@@ -1,0 +1,115 @@
+<div>
+  <div>
+    {% comment %} If section title is not blank, Center it and use H3 {% endcomment %}
+    {% if section.settings.title != blank %}<center><h3> {{ section.settings.title }} </h3></center>{% endif %}
+    
+    {% comment %} If you have a discount applied, and going straight to checkout: use teh /discount/ URL, followed up by a redirect as per https://app.getguru.com/card/7TdgGXRT/Discount-shareable-link {% endcomment %}
+	<a href="{% if section.settings.discount_code != blank and section.settings.direct_to == 'checkout' %}/discount/{{section.settings.discount_code}}?redirect={% endif %}
+
+	{% comment %} If straight to checkout, use /cart/add.js.  If not, than use /cart/update.js {% endcomment %}
+	{% if section.settings.direct_to == 'checkout' %}/cart/{% endif %}{% if section.settings.direct_to == 'cart' %}/cart/update?{% endif %}
+
+	{% comment %} for each block (variant) run the following {% endcomment %}
+	{% for block in section.blocks %}
+
+	{% comment %} if straight to checkout, Add variantID:Quantify, as per https://help.shopify.com/themes/customization/cart/use-permalinks-to-preload-cart {% endcomment %}
+	{% if section.settings.direct_to == 'checkout' %}
+		{{block.settings.variantID}}:{{block.settings.qty}},
+	{% else %}
+
+	{% comment %} As per above for add to cart, but different format as per https://help.shopify.com/themes/development/getting-started/using-ajax-api#update-cart {% endcomment %}
+	updates[{{block.settings.variantID}}]={{block.settings.qty}}&
+	{% endif %}
+	{% endfor %}">
+	<center><img src="{{section.settings.bundle_image | img_url: 'x2048' }}" width="{{section.settings.width}}"></center><!-- Image from Schema Along with Width Settings -->
+	</a> <!--End of Link -->
+  </div>
+</div>
+
+
+
+
+
+{% schema %}
+{
+  "name": "Permalinked Bundle",
+	"max_blocks": 10,
+  "settings": [
+{
+        "type": "paragraph",
+        "content": "You will need to Manually Add Variant IDs. ([Help](https:\/\/help.shopify.com\/customization\/products\/variants\/find-variant-id))"
+      },
+{
+        "type": "paragraph",
+        "content": "You May have a max of one discount code added to the cart, unless you use a 3rd party app like [Milestones](https:\/\/apps.shopify.com\/milestones) which can incur additonal Costs"
+      },
+{
+      "id": "title",
+      "type": "text",
+      "label": "Optional Heading. Leave Blank for none."
+},
+	{
+      "type": "image_picker",
+      "id": "bundle_image",
+      "label": "Image for your Banner."
+    },
+    {
+   "type": "select",
+   "id": "width",
+   "options": [
+      { "value": "25%", "label": "25%"},
+      { "value": "33%", "label": "33%"},
+      { "value": "50%", "label": "50%"},
+      { "value": "66%", "label": "66%"},
+      { "value": "75%", "label": "75%"},
+      { "value": "100%", "label": "100%"}
+   ],
+   "label": "Image Width. Does not Override margins."
+},
+{
+      "id": "discount_code",
+      "type": "text",
+      "label": "Straight to Checkout: Optional Discount code."
+},
+{
+   "type": "select",
+   "id": "direct_to",
+   "options": [
+      { "value": "checkout", "label": "Direct to Checkout"},
+      { "value": "cart", "label": "Just Add to Cart when Clicked"}
+   ],
+   "label": "Direct to Checkout, or Add to Cart"
+}
+  ],
+  "blocks": [
+    {
+	  "type": "text",
+      "name": "Variant ID",
+      "settings": [
+        {
+          "id": "variantID",
+          "type": "text",
+       		"label": "Variant ID"
+},
+{
+          "id": "qty",
+          "type": "text",
+       		"label": "Quantity of Product"
+}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Permalink Bundles",
+      "category": "Permalinks"
+    }
+  ]
+}
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}
